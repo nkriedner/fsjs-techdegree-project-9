@@ -24,7 +24,12 @@ module.exports = (sequelize) => {
     );
 
     User.associate = (models) => {
-        // -> Add associations
+        User.hasMany(models.Course, {
+            foreignKey: {
+                fieldName: "userId",
+                allowNull: false,
+            },
+        });
     };
 
     return User;
