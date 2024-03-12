@@ -2,6 +2,7 @@
 
 const express = require("express");
 const { asyncHandler } = require("./middleware/async-handler");
+const { User } = require("./models");
 
 // Create a router instance
 const router = express.Router();
@@ -18,7 +19,18 @@ router.get(
 router.post(
     "/users",
     asyncHandler(async (req, res) => {
-        res.status(200).json({ msg: "POST request to /api/users route" });
+        try {
+            console.log("req.body:", req.body);
+            await User.create(req.body);
+            res.status(201).json({ message: "User account successfully created" });
+        } catch (error) {
+            if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
+                const errors = error.errors.map((err = err.message));
+                res.status(400).json({ errors });
+            } else {
+                throw error;
+            }
+        }
     })
 );
 
