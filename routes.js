@@ -13,9 +13,16 @@ router.get(
     "/users",
     authenticateUser,
     asyncHandler(async (req, res) => {
-        // retreive all users from db
-        const users = await User.findAll();
-        res.status(200).json(users);
+        // retrieve the current authenticated user infos from request object
+        const currentUser = req.currentUser;
+        console.log("currentUser.id:", currentUser.id);
+        // Return id, firstName, lastName and emailAddress for current user
+        res.status(200).json({
+            id: currentUser.id,
+            firstName: currentUser.firstName,
+            lastName: currentUser.lastName,
+            emailAddress: currentUser.emailAddress,
+        });
     })
 );
 
