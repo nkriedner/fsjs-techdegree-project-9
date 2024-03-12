@@ -3,6 +3,7 @@
 const express = require("express");
 const { asyncHandler } = require("./middleware/async-handler");
 const { User, Course } = require("./models");
+const { authenticateUser } = require("./middleware/auth-user");
 
 // Create a router instance
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
 // GET request to /api/users
 router.get(
     "/users",
+    authenticateUser,
     asyncHandler(async (req, res) => {
         // retreive all users from db
         const users = await User.findAll();
