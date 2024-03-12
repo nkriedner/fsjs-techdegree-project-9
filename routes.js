@@ -27,7 +27,7 @@ router.post(
             res.status(201).json({ message: "User account successfully created." });
         } catch (error) {
             if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
-                const errors = error.errors.map((err = err.message));
+                const errors = error.errors.map((err) => err.message);
                 res.status(400).json({ errors });
             } else {
                 throw error;
@@ -68,7 +68,8 @@ router.post(
         } catch (error) {
             console.log("catch...", error.message);
             if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
-                res.status(400).json({ error: error.message });
+                const errors = error.errors.map((err) => err.message);
+                res.status(400).json({ errors });
             } else {
                 throw error;
             }
