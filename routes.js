@@ -33,7 +33,7 @@ router.post(
         try {
             // create new user with data from request body
             await User.create(req.body);
-            res.status(201).json({ message: "User account successfully created." });
+            res.location("/").status(201).end();
         } catch (error) {
             if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
                 const errors = error.errors.map((err) => err.message);
@@ -51,6 +51,7 @@ router.get(
     asyncHandler(async (req, res) => {
         // retreive all course data from db (plus chosen user info)
         const courses = await Course.findAll({
+            attributes: { exclude: ["createdAt", "updatedAt"] },
             include: [
                 {
                     model: User,
@@ -89,8 +90,8 @@ router.post(
         console.log("req.body:", req.body);
         try {
             // create new course with data from request body
-            await Course.create(req.body);
-            res.status(201).json({ message: "Course successfully created" });
+            const newCourse = await Course.create(req.body);
+            res.location(`/courses/${newCourse.id}`).status(201).end();
         } catch (error) {
             console.log("catch...", error.message);
             if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
@@ -106,13 +107,33 @@ router.post(
 // PUT request to /api/courses/:id
 router.put(
     "/courses/:id",
+    authenticateUser,
     asyncHandler(async (req, res) => {
-        // retreive course to update with id
+        // retrieve the current authenticated user infos from request object
+        const currentUser = req.currentUser;
+        // retreive course to update with id from request params
         const courseToUpdate = await Course.findByPk(req.params.id);
         // TODO: Update course data
         console.log("TODO: Update ->", courseToUpdate);
         // res.status(204);
-        res.json({ msg: "PUT request to /api/courses/:id route" });
+
+        // check if course-user-id equals currentUser-id
+        if (courseToUpdate.userId === currentUser.id) {
+            try {
+                await courseToUpdate.update(req.body);
+                res.status(204).end();
+            } catch (error) {
+                // console.log("catch...", error.message);
+                if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
+                    const errors = error.errors.map((err) => err.message);
+                    res.status(400).json({ errors });
+                } else {
+                    throw error;
+                }
+            }
+        } else {
+            res.status(403).end();
+        }
     })
 );
 
