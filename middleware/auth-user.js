@@ -10,14 +10,11 @@ exports.authenticateUser = async (req, res, next) => {
     // parse the user's credentials from the Auhorization header
     const credentials = auth(req);
 
-    // console.log("authenticateUser middleware running - credentials:", credentials);
-
     if (credentials) {
         const user = await User.findOne({ where: { emailAddress: credentials.name } });
-        // console.log("user:", user);
+
         if (user) {
             const authenticated = bcrypt.compareSync(credentials.pass, user.password);
-            console.log("authenticated:", authenticated);
             if (authenticated) {
                 console.log(`Authentication successful for user: ${user.emailAddress}`);
 

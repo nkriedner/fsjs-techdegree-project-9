@@ -15,7 +15,6 @@ router.get(
     asyncHandler(async (req, res) => {
         // retrieve the current authenticated user infos from request object
         const currentUser = req.currentUser;
-        console.log("currentUser.id:", currentUser.id);
         // Return id, firstName, lastName and emailAddress for current user
         res.status(200).json({
             id: currentUser.id,
@@ -88,13 +87,11 @@ router.post(
     "/courses",
     authenticateUser,
     asyncHandler(async (req, res) => {
-        console.log("req.body:", req.body);
         try {
             // create new course with data from request body
             const newCourse = await Course.create(req.body);
             res.location(`/courses/${newCourse.id}`).status(201).end();
         } catch (error) {
-            console.log("catch...", error.message);
             if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
                 const errors = error.errors.map((err) => err.message);
                 res.status(400).json({ errors });
@@ -114,9 +111,6 @@ router.put(
         const currentUser = req.currentUser;
         // retreive course to update with id from request params
         const courseToUpdate = await Course.findByPk(req.params.id);
-        // TODO: Update course data
-        console.log("TODO: Update ->", courseToUpdate);
-        // res.status(204);
 
         // check if course-user-id equals currentUser-id
         if (courseToUpdate.userId === currentUser.id) {
@@ -124,7 +118,6 @@ router.put(
                 await courseToUpdate.update(req.body);
                 res.status(204).end();
             } catch (error) {
-                // console.log("catch...", error.message);
                 if (error.name === "SequelizeValidationError" || error.name === "SequelizeUniqueConstraintError") {
                     const errors = error.errors.map((err) => err.message);
                     res.status(400).json({ errors });
