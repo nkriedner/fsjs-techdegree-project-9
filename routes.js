@@ -119,13 +119,20 @@ router.put(
 // DELETE request to /api/courses/:id
 router.delete(
     "/courses/:id",
+    authenticateUser,
     asyncHandler(async (req, res) => {
-        // retreive course to delete with id
+        // retrieve the current authenticated user infos from request object
+        const currentUser = req.currentUser;
+        // retreive course to delete with id from request params
         const courseToDelete = await Course.findByPk(req.params.id);
-        // TODO: Delete course
-        console.log("TODO: Delete ->", courseToDelete);
-        // res.status(204);
-        res.json({ msg: "DELETE request to /api/courses/:id route" });
+
+        // check if course-user-id equals currentUser-id
+        if (courseToDelete.userId === currentUser.id) {
+            await courseToDelete.destroy();
+            res.status(204).end();
+        } else {
+            res.status(403).end();
+        }
     })
 );
 
