@@ -49,8 +49,16 @@ router.post(
 router.get(
     "/courses",
     asyncHandler(async (req, res) => {
-        // retreive all course data from db
-        const courses = await Course.findAll();
+        // retreive all course data from db (plus chosen user info)
+        const courses = await Course.findAll({
+            include: [
+                {
+                    model: User,
+                    as: "user",
+                    attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+                },
+            ],
+        });
         res.status(200).json(courses);
     })
 );
