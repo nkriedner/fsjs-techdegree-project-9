@@ -84,6 +84,7 @@ router.get(
 // POST request to /api/courses
 router.post(
     "/courses",
+    authenticateUser,
     asyncHandler(async (req, res) => {
         console.log("req.body:", req.body);
         try {
