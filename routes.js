@@ -148,12 +148,18 @@ router.delete(
         // retreive course to delete with id from request params
         const courseToDelete = await Course.findByPk(req.params.id);
 
-        // check if course-user-id equals currentUser-id
-        if (courseToDelete.userId === currentUser.id) {
-            await courseToDelete.destroy();
-            res.status(204).end();
+        // check if the course with this id exists
+        if (!courseToDelete) {
+            res.status(404).json({ error: "Course not found" });
         } else {
-            res.status(403).end();
+            // if the course does exist
+            // check if course-user-id equals currentUser-id
+            if (courseToDelete.userId === currentUser.id) {
+                await courseToDelete.destroy();
+                res.status(204).end();
+            } else {
+                res.status(403).end();
+            }
         }
     })
 );
